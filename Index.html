@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Kelowna North 28026 - Security Seal Log</title>
+<style>
+  :root {
+    --primary: #1e293b;
+    --accent: #2563eb;
+    --border: #cbd5e1;
+    --bg: #f8fafc;
+    --row-alt: #f1f5f9;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg);
+    color: #0f172a;
+    margin: 0;
+    padding: 16px;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 20px;
+  }
+  header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    gap: 12px;
+  }
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--primary);
+    letter-spacing: 0.3px;
+  }
+  .subtitle {
+    font-size: 0.85rem;
+    color: #475569;
+    margin-top: 2px;
+  }
+  .toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  button {
+    background-color: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s;
+  }
+  button:hover {
+    background-color: #1d4ed8;
+  }
+  button.secondary {
+    background-color: #e2e8f0;
+    color: #1e293b;
+  }
+  button.secondary:hover {
+    background-color: #cbd5e1;
+  }
+  button.danger {
+    background-color: #fee2e2;
+    color: #991b1b;
+  }
+  button.danger:hover {
+    background-color: #fecaca;
+  }
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 820px;
+  }
+  th {
+    background-color: var(--primary);
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: left;
+    padding: 10px 8px;
+    border: 1px solid var(--primary);
+    white-space: nowrap;
+  }
+  td {
+    border: 1px solid var(--border);
+    padding: 6px 8px;
+    vertical-align: middle;
+  }
+  tbody tr:nth-child(even) {
+    background-color: var(--row-alt);
+  }
+  .row-num {
+    width: 36px;
+    text-align: center;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.85rem;
+  }
+  .date-cell {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  input[type="date"],
+  input[type="text"],
+  select {
+    font-family: inherit;
+    font-size: 0.85rem;
+    padding: 6px 8px;
+    border: 1px solid #94a3b8;
+    border-radius: 5px;
+    background: #fff;
+    color: #0f172a;
+  }
+  input[type="date"] {
+    width: 132px;
+  }
+  input[type="text"] {
+    width: 130px;
+  }
+  select {
+    width: 165px;
+  }
+  .mini-btn {
+    padding: 4px 7px;
+    font-size: 0.75rem;
+    border-radius: 4px;
+  }
+  /* Seal Photo Box: exact 1.5in long x 0.5in high */
+  .photo-cell-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .seal-photo-box {
+    width: 1.5in;
+    height: 0.5in;
+    border: 1.5px dashed #64748b;
+    border-radius: 4px;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .seal-photo-box.has-photo {
+    border-style: solid;
+    border-color: #334155;
+  }
+  .seal-photo-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .seal-photo-placeholder {
+    font-size: 0.72rem;
+    color: #475569;
+    text-align: center;
+    line-height: 1.1;
+    padding: 2px;
+    pointer-events: none;
+  }
+  input[type="file"].hidden-file {
+    display: none;
+  }
+  /* Signature / Initials Pad for S Pen & Touch */
+  .sig-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .sig-canvas {
+    width: 120px;
+    height: 48px;
+    border: 1px solid #94a3b8;
+    border-radius: 4px;
+    background: #ffffff;
+    touch-action: none; /* Crucial for S Pen / stylus drawing without scrolling */
+    cursor: crosshair;
+    display: block;
+  }
+  .sig-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  /* Modal for larger S Pen signing */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-backdrop.open {
+    display: flex;
+  }
+  .modal-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 18px;
+    width: 100%;
+    max-width: 460px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  }
+  .modal-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.05rem;
+  }
+  #modalCanvas {
+    width: 100%;
+    height: 160px;
+    border: 2px solid var(--primary);
+    border-radius: 6px;
+    background: #fff;
+    touch-action: none;
+    cursor: crosshair;
+    display: block;
+  }
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .status-bar {
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: #64748b;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Print styles */
+  @media print {
+    body {
+      background: #fff;
+      padding: 0;
+    }
+    .container {
+      box-shadow: none;
+      padding: 0;
+      max-width: 100%;
+    }
+    .toolbar, .mini-btn, .sig-actions, .status-bar {
+      display: none !important;
+    }
+    table {
+      min-width: 100%;
+    }
+    th {
+      background-color: #1e293b !important;
+      color: #fff !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      padding: 6px;
+      font-size: 0.8rem;
+    }
+    td {
+      padding: 4px 6px;
+    }
+    input[type="date"], input[type="text"], select {
+      border: none;
+      padding: 2px;
+      background: transparent;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .seal-photo-box {
+      width: 1.5in !important;
+      height: 0.5in !important;
+      border: 1px solid #64748b;
+    }
+    .seal-photo-placeholder {
+      display: none;
+    }
+    .sig-canvas {
+      border: none;
+      border-bottom: 1px solid #94a3b8;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div>
+      <h1>Kelowna North 28026</h1>
+      <div class="subtitle">Security Seal Inspection &amp; Verification Log (20 Entries)</div>
+    </div>
+    <div class="toolbar">
+      <button type="button" class="secondary" onclick="fillNextToday()">Set Next Date Today</button>
+      <button type="button" class="secondary" onclick="exportDataJSON()">Save Backup (.json)</button>
+      <button type="button" onclick="window.print()">Print / Save PDF</button>
+      <button type="button" class="danger" onclick="clearAllRows()">Clear All</button>
+    </div>
+  </header>
+
+  <div class="table-wrapper">
+    <table id="sealTable">
+      <thead>
+        <tr>
+          <th style="width:36px; text-align:center;">#</th>
+          <th>Date</th>
+          <th>Seal Number</th>
+          <th>Seal Photo (1.5&quot; &times; 0.5&quot;)</th>
+          <th>Location</th>
+          <th>Initials (S Pen / Stylus)</th>
+        </tr>
+      </thead>
+      <tbody id="logBody"></tbody>
+    </table>
+  </div>
+
+  <div class="status-bar">
+    <span>Tip: Tap any photo box to take or upload a seal photo (1.5&quot; &times; 0.5&quot;). Write initials directly with your S Pen or tap &ldquo;&#x2922;&rdquo; to expand.</span>
+    <span id="saveStatus">Auto-saved locally on device</span>
+  </div>
+</div>
+
+<!-- Expanded S Pen Signature Modal -->
+<div class="modal-backdrop" id="sigModal">
+  <div class="modal-card">
+    <h3 id="modalTitle">Sign Initials (Row 1)</h3>
+    <canvas id="modalCanvas"></canvas>
+    <div class="modal-footer">
+      <button type="button" class="secondary" onclick="clearModalCanvas()">Clear</button>
+      <button type="button" class="secondary" onclick="closeSigModal()">Cancel</button>
+      <button type="button" onclick="applyModalSignature()">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const TOTAL_ROWS = 20;
+  const STORAGE_KEY = 'kelowna_north_28026_seal_log_v1';
+  const LOCATIONS = [
+    'North door',
+    'South door',
+    'North card reader',
+    'South card reader',
+    'North pinpad',
+    'South pinpad'
+  ];
+
+  let logData = [];
+  let activeModalRow = null;
+
+  function getTodayString() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  function loadState() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length === TOTAL_ROWS) {
+          logData = parsed;
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Could not load saved state:', e);
+    }
+    logData = Array.from({ length: TOTAL_ROWS }, () => ({
+      date: '',
+      sealNumber: '',
+      photo: '',
+      location: '',
+      signature: ''
+    }));
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(logData));
+      const status = document.getElementById('saveStatus');
+      status.textContent = 'Saved ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (e) {
+      document.getElementById('saveStatus').textContent = 'Storage full — please Print/Save PDF';
+    }
+  }
+
+  function buildTable() {
+    const tbody = document.getElementById('logBody');
+    tbody.innerHTML = '';
+
+    for (let i = 0; i < TOTAL_ROWS; i++) {
+      const row = logData[i];
+      const tr = document.createElement('tr');
+
+      // Row number
+      const tdNum = document.createElement('td');
+      tdNum.className = 'row-num';
+      tdNum.textContent = i + 1;
+      tr.appendChild(tdNum);
+
+      // Date cell
+      const tdDate = document.createElement('td');
+      const dateWrap = document.createElement('div');
+      dateWrap.className = 'date-cell';
+
+      const dateInput = document.createElement('input');
+      dateInput.type = 'date';
+      dateInput.id = `date-${i}`;
+      dateInput.value = row.date || '';
+      dateInput.addEventListener('change', (e) => {
+        logData[i].date = e.target.value;
+        saveState();
+      });
+
+      const todayBtn = document.createElement('button');
+      todayBtn.type = 'button';
+      todayBtn.className = 'secondary mini-btn';
+      todayBtn.textContent = 'Today';
+      todayBtn.title = 'Set to today';
+      todayBtn.onclick = () => {
+        const today = getTodayString();
+        dateInput.value = today;
+        logData[i].date = today;
+        saveState();
+      };
+
+      dateWrap.appendChild(dateInput);
+      dateWrap.appendChild(todayBtn);
+      tdDate.appendChild(dateWrap);
+      tr.appendChild(tdDate);
+
+      // Seal Number
+      const tdSeal = document.createElement('td');
+      const sealInput = document.createElement('input');
+      sealInput.type = 'text';
+      sealInput.placeholder = 'Seal #';
+      sealInput.value = row.sealNumber || '';
+      sealInput.addEventListener('input', (e) => {
+        logData[i].sealNumber = e.target.value;
+        saveState();
+      });
+      tdSeal.appendChild(sealInput);
+      tr.appendChild(tdSeal);
+
+      // Photo of Seal (1.5in x 0.5in)
+      const tdPhoto = document.createElement('td');
+      const photoWrap = document.createElement('div');
+      photoWrap.className = 'photo-cell-wrap';
+
+      const photoBox = document.createElement('div');
+      photoBox.className = 'seal-photo-box' + (row.photo ? ' has-photo' : '');
+      photoBox.id = `photo-box-${i}`;
+      photoBox.title = 'Tap to add seal photo (1.5" x 0.5")';
+
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'image/*';
+      fileInput.setAttribute('capture', 'environment');
+      fileInput.className = 'hidden-file';
+      fileInput.id = `file-${i}`;
+
+      photoBox.onclick = () => fileInput.click();
+
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        resizeImageForSeal(file, (dataUrl) => {
+          logData[i].photo = dataUrl;
+          renderPhotoBox(i);
+          saveState();
+        });
+      });
+
+      const clearPhotoBtn = document.createElement('button');
+      clearPhotoBtn.type = 'button';
+      clearPhotoBtn.className = 'secondary mini-btn';
+      clearPhotoBtn.textContent = '×';
+      clearPhotoBtn.title = 'Remove photo';
+      clearPhotoBtn.onclick = () => {
+        logData[i].photo = '';
+        fileInput.value = '';
+        renderPhotoBox(i);
+        saveState();
+      };
+
+      photoWrap.appendChild(photoBox);
+      photoWrap.appendChild(fileInput);
+      photoWrap.appendChild(clearPhotoBtn);
+      tdPhoto.appendChild(photoWrap);
+      tr.appendChild(tdPhoto);
+
+      // Location Dropdown
+      const tdLoc = document.createElement('td');
+      const select = document.createElement('select');
+      const defaultOpt = document.createElement('option');
+      defaultOpt.value = '';
+      defaultOpt.textContent = '-- Select Location --';
+      select.appendChild(defaultOpt);
+
+      LOCATIONS.forEach(loc => {
+        const opt = document.createElement('option');
+        opt.value = loc;
+        opt.textContent = loc;
+        if (row.location === loc) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      select.addEventListener('change', (e) => {
+        logData[i].location = e.target.value;
+        saveState();
+      });
+      tdLoc.appendChild(select);
+      tr.appendChild(tdLoc);
+
+      // Initials Canvas (S Pen / Stylus)
+      const tdSig = document.createElement('td');
+      const sigWrap = document.createElement('div');
+      sigWrap.className = 'sig-wrap';
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'sig-canvas';
+      canvas.id = `sig-canvas-${i}`;
+
+      const sigActions = document.createElement('div');
+      sigActions.className = 'sig-actions';
+
+      const expandBtn = document.createElement('button');
+      expandBtn.type = 'button';
+      expandBtn.className = 'secondary mini-btn';
+      expandBtn.innerHTML = '&#x2922;';
+      expandBtn.title = 'Expand pad for S Pen';
+      expandBtn.onclick = () => openSigModal(i);
+
+      const clearSigBtn = document.createElement('button');
+      clearSigBtn.type = 'button';
+      clearSigBtn.className = 'secondary mini-btn';
+      clearSigBtn.textContent = '×';
+      clearSigBtn.title = 'Clear initials';
+      clearSigBtn.onclick = () => {
+        clearRowCanvas(i);
+        logData[i].signature = '';
+        saveState();
+      };
+
+      sigActions.appendChild(expandBtn);
+      sigActions.appendChild(clearSigBtn);
+      sigWrap.appendChild(canvas);
+      sigWrap.appendChild(sigActions);
+      tdSig.appendChild(sigWrap);
+      tr.appendChild(tdSig);
+
+      tbody.appendChild(tr);
+
+      renderPhotoBox(i);
+      setupInlineCanvas(canvas, i);
+    }
+  }
+
+  function renderPhotoBox(index) {
+    const box = document.getElementById(`photo-box-${index}`);
+    const dataUrl = logData[index].photo;
+    if (dataUrl) {
+      box.classList.add('has-photo');
+      box.innerHTML = `<img src="${dataUrl}" alt="Seal Photo ${index + 1}">`;
+    } else {
+      box.classList.remove('has-photo');
+      box.innerHTML = `<span class="seal-photo-placeholder">+ Photo<br>(1.5&quot; &times; 0.5&quot;)</span>`;
+    }
+  }
+
+  function resizeImageForSeal(file, callback) {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        // 3:1 aspect ratio matching 1.5in x 0.5in at crisp 300 DPI (450x150)
+        const targetW = 450;
+        const targetH = 150;
+        const canvas = document.createElement('canvas');
+        canvas.width = targetW;
+        canvas.height = targetH;
+        const ctx = canvas.getContext('2d');
+
+        // Center-crop to 3:1 aspect ratio
+        const srcRatio = img.width / img.height;
+        const targetRatio = targetW / targetH;
+        let sx = 0, sy = 0, sw = img.width, sh = img.height;
+        if (srcRatio > targetRatio) {
+          sw = img.height * targetRatio;
+          sx = (img.width - sw) / 2;
+        } else {
+          sh = img.width / targetRatio;
+          sy = (img.height - sh) / 2;
+        }
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetW, targetH);
+        callback(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function setupInlineCanvas(canvas, rowIndex) {
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = 120;
+    const cssH = 48;
+    canvas.width = cssW * dpr;
+    canvas.height = cssH * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#0f172a';
+
+    if (logData[rowIndex].signature) {
+      const img = new Image();
+      img.onload = () => ctx.drawImage(img, 0, 0, cssW, cssH);
+      img.src = logData[rowIndex].signature;
+    }
+
+    let drawing = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      return {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    }
+
+    canvas.addEventListener('pointerdown', (e) => {
+      // Allow pen, touch, or mouse
+      e.preventDefault();
+      canvas.setPointerCapture(e.pointerId);
+      drawing = true;
+      const pos = getPos(e);
+      lastX = pos.x;
+      lastY = pos.y;
+    });
+
+    canvas.addEventListener('pointermove', (e) => {
+      if (!drawing) return;
+      e.preventDefault();
+      const pos = getPos(e);
+      const pressure = e.pressure && e.pressure > 0 ? e.pressure : 0.5;
+      ctx.lineWidth = Math.max(1.4, pressure * 3.2);
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(pos.x, pos.y);
+      ctx.stroke();
+      lastX = pos.x;
+      lastY = pos.y;
+    });
+
+    function endStroke(e) {
+      if (!drawing) return;
+      drawing = false;
+      logData[rowIndex].signature = canvas.toDataURL('image/png');
+      saveState();
+    }
+
+    canvas.addEventListener('pointerup', endStroke);
+    canvas.addEventListener('pointercancel', endStroke);
+  }
+
+  function clearRowCanvas(rowIndex) {
+    const canvas = document.getElementById(`sig-canvas-${rowIndex}`);
+    const ctx = canvas.getContext('2d');
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+  }
+
+  // Modal S Pen Pad
+  const modal = document.getElementById('sigModal');
+  const modalCanvas = document.getElementById('modalCanvas');
+  let modalDrawing = false;
+  let mLastX = 0, mLastY = 0;
+
+  function initModalCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = modalCanvas.getBoundingClientRect();
+    modalCanvas.width = rect.width * dpr;
+    modalCanvas.height = rect.height * dpr;
+    const ctx = modalCanvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#0f172a';
+  }
+
+  modalCanvas.addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    modalCanvas.setPointerCapture(e.pointerId);
+    modalDrawing = true;
+    const rect = modalCanvas.getBoundingClientRect();
+    mLastX = e.clientX - rect.left;
+    mLastY = e.clientY - rect.top;
+  });
+
+  modalCanvas.addEventListener('pointermove', (e) => {
+    if (!modalDrawing) return;
+    e.preventDefault();
+    const rect = modalCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const ctx = modalCanvas.getContext('2d');
+    const pressure = e.pressure && e.pressure > 0 ? e.pressure : 0.5;
+    ctx.lineWidth = Math.max(2.2, pressure * 5);
+    ctx.beginPath();
+    ctx.moveTo(mLastX, mLastY);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    mLastX = x;
+    mLastY = y;
+  });
+
+  modalCanvas.addEventListener('pointerup', () => { modalDrawing = false; });
+  modalCanvas.addEventListener('pointercancel', () => { modalDrawing = false; });
+
+  function openSigModal(rowIndex) {
+    activeModalRow = rowIndex;
+    document.getElementById('modalTitle').textContent = `Sign Initials — Row ${rowIndex + 1}`;
+    modal.classList.add('open');
+    requestAnimationFrame(() => {
+      initModalCanvas();
+      if (logData[rowIndex].signature) {
+        const rect = modalCanvas.getBoundingClientRect();
+        const ctx = modalCanvas.getContext('2d');
+        const img = new Image();
+        img.onload = () => ctx.drawImage(img, 0, 0, rect.width, rect.height);
+        img.src = logData[rowIndex].signature;
+      }
+    });
+  }
+
+  function clearModalCanvas() {
+    const ctx = modalCanvas.getContext('2d');
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+    ctx.restore();
+  }
+
+  function closeSigModal() {
+    modal.classList.remove('open');
+    activeModalRow = null;
+  }
+
+  function applyModalSignature() {
+    if (activeModalRow === null) return;
+    const dataUrl = modalCanvas.toDataURL('image/png');
+    logData[activeModalRow].signature = dataUrl;
+    clearRowCanvas(activeModalRow);
+    const inlineCanvas = document.getElementById(`sig-canvas-${activeModalRow}`);
+    const ctx = inlineCanvas.getContext('2d');
+    const img = new Image();
+    img.onload = () => ctx.drawImage(img, 0, 0, 120, 48);
+    img.src = dataUrl;
+    saveState();
+    closeSigModal();
+  }
+
+  function fillNextToday() {
+    for (let i = 0; i < TOTAL_ROWS; i++) {
+      if (!logData[i].date) {
+        const today = getTodayString();
+        logData[i].date = today;
+        document.getElementById(`date-${i}`).value = today;
+        saveState();
+        break;
+      }
+    }
+  }
+
+  function exportDataJSON() {
+    const blob = new Blob([JSON.stringify({ form: 'Kelowna North 28026', exportedAt: new Date().toISOString(), rows: logData }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `Kelowna_North_28026_${getTodayString()}.json`;
+    a.click();
+  }
+
+  function clearAllRows() {
+    if (!confirm('Clear all 20 rows of Kelowna North 28026?')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    loadState();
+    buildTable();
+  }
+
+  loadState();
+  buildTable();
+</script>
+</body>
+</html>
